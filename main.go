@@ -5,9 +5,16 @@ import (
 
 	"github.com/bonjourrog/taskm/controller"
 	"github.com/bonjourrog/taskm/repository"
+	taskrepo "github.com/bonjourrog/taskm/repository/taskRepo"
 	"github.com/bonjourrog/taskm/routes"
 	"github.com/bonjourrog/taskm/service"
 	"github.com/joho/godotenv"
+)
+
+var (
+	taskRepo       taskrepo.Task             = taskrepo.NewTasksRepo()
+	taskService    service.TaskService       = service.NewTaskService(taskRepo)
+	taskController controller.TaskController = controller.NewTaskController(taskService)
 )
 
 var (
@@ -24,6 +31,7 @@ func main() {
 	}
 	httpRouter.POST("/api/list/", listController.Create)
 	httpRouter.GET("/api/list/:user_id", listController.GetAll)
+	httpRouter.POST("/api/task/", taskController.Create)
 	httpRouter.SERVE(os.Getenv("PORT"))
 
 }
