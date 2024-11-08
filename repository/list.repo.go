@@ -8,6 +8,7 @@ import (
 	"github.com/bonjourrog/taskm/db"
 	"github.com/bonjourrog/taskm/entity"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type ListRepo interface {
@@ -54,21 +55,26 @@ func (*list) FetchAll(user_id string) ([]entity.List, error) {
 		_db   = db.NewMongoConnection()
 		_list []entity.List
 	)
-	fmt.Println("User ID:", user_id)
 	client := _db.Connection()
 	defer func() {
 		client.Disconnect(context.TODO())
 	}()
 	coll := client.Database(os.Getenv("MONGO_DB")).Collection("list")
-	cursor, err := coll.Find(context.TODO(), bson.M{"user_id": user_id})
+	pipeline := mongo.Pipeline{
+		bson.D{{"$match", bson.D{{"user_id", user_id}}}},
+		bson.D{{"$lookup", bson.D{
+			{"from", "tasks"},
+			{"localField", "_id"},
+			{"foreignField", "list_id"},
+			{"as", "tasks"},
+		}}},
+	}
+	cursor, err := coll.Aggregate(context.TODO(), pipeline)
 	if err != nil {
 		return nil, err
 	}
 	if err = cursor.All(context.TODO(), &_list); err != nil {
 		return nil, err
-	}
-	for _, elem := range _list {
-		fmt.Println(elem.Color)
 	}
 	return _list, nil
 }
