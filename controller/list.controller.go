@@ -12,7 +12,8 @@ import (
 )
 
 type ListController interface {
-	Create(*gin.Context)
+	Create(c *gin.Context)
+	GetAll(c *gin.Context)
 }
 
 type listController struct{}
@@ -35,7 +36,7 @@ func (*listController) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 			"data":    nil,
-			"error":   false,
+			"error":   true,
 		})
 		return
 	}
@@ -47,13 +48,41 @@ func (*listController) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": result.Message,
 			"data":    nil,
-			"error":   false,
+			"error":   true,
 		})
 		return
 	}
 	c.JSON(http.StatusBadRequest, gin.H{
 		"message": result.Message,
 		"data":    nil,
+		"error":   false,
+	})
+}
+func (*listController) GetAll(c *gin.Context) {
+	var (
+		_list []entity.List
+	)
+	user_id := c.Param("user_id")
+	if user_id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "user id not provided",
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	_list, err := _liserService.FetchAll(user_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "successfully fetched all items",
+		"data":    _list,
 		"error":   false,
 	})
 }
