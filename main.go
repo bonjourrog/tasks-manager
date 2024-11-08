@@ -23,6 +23,7 @@ func main() {
 		panic(err)
 	}
 	httpRouter.POST("/api/list/", listController.Create)
+	httpRouter.GET("/api/list/:user_id", listController.GetAll)
 	httpRouter.SERVE(os.Getenv("PORT"))
 
 }
