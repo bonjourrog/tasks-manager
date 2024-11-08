@@ -29,8 +29,14 @@ func (*taskController) Create(c *gin.Context) {
 	var (
 		task   entity.Task
 		result entity.MongoResult
+		input  struct {
+			Name        string `bson:"name" json:"name"`
+			Description string `bson:"description" json:"description"`
+			UserID      string `bson:"user_id" json:"user_id"`
+			ListID      string `bson:"list_id" json:"list_id"`
+		}
 	)
-	if err := json.NewDecoder(c.Request.Body).Decode(&task); err != nil {
+	if err := json.NewDecoder(c.Request.Body).Decode(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "error decoding body",
 			"data":    nil,
@@ -38,7 +44,7 @@ func (*taskController) Create(c *gin.Context) {
 		})
 		return
 	}
-	if task.Name == "" || task.ListID == "" || task.UserID == "" {
+	if input.Name == "" || input.UserID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "some required fields are empty",
 			"data":    nil,
@@ -46,6 +52,19 @@ func (*taskController) Create(c *gin.Context) {
 		})
 		return
 	}
+	list_id, err := primitive.ObjectIDFromHex(input.ListID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	task.Name = input.Name
+	task.Description = input.Description
+	task.UserID = input.UserID
+	task.ListID = list_id
 	task.ID = primitive.NewObjectID()
 	task.UpdatedAt = time.Now()
 	task.CreatedAt = time.Now()
