@@ -7,6 +7,7 @@ import (
 
 type ListService interface {
 	Create(list entity.List) entity.MongoResult
+	FetchAll(user_id string) ([]entity.List, error)
 }
 
 type listService struct{}
@@ -21,4 +22,7 @@ func NewListService(listRepo repository.ListRepo) ListService {
 }
 func (*listService) Create(list entity.List) entity.MongoResult {
 	return _listRepo.Create(list)
+}
+func (*listService) FetchAll(user_id string) ([]entity.List, error) {
+	return _listRepo.FetchAll(user_id)
 }
