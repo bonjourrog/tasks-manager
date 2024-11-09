@@ -37,6 +37,7 @@ func main() {
 		panic(err)
 	}
 	httpRouter.POST("/api/auth/register/", authController.UserRegister)
+	httpRouter.GET("/api/auth/sign-in", authController.Login)
 	httpRouter.POST("/api/list/", listController.Create)
 	httpRouter.GET("/api/list/:user_id", listController.GetAll)
 	httpRouter.POST("/api/task/", taskController.Create)
