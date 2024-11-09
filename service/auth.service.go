@@ -7,6 +7,7 @@ import (
 
 type AuthService interface {
 	Register(user entity.User) entity.MongoResult
+	SignIn(user entity.User) entity.MongoResult
 }
 
 type authService struct{}
@@ -21,4 +22,7 @@ func NewAuthService(authRepo authrepo.AuthRepo) AuthService {
 }
 func (*authService) Register(user entity.User) entity.MongoResult {
 	return _authRepo.Register(user)
+}
+func (*authService) SignIn(user entity.User) entity.MongoResult {
+	return _authRepo.SignIn(user)
 }
