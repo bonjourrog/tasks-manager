@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/bonjourrog/taskm/controller"
+	"github.com/bonjourrog/taskm/middleware"
 	"github.com/bonjourrog/taskm/repository"
 	"github.com/bonjourrog/taskm/repository/authrepo"
 	taskrepo "github.com/bonjourrog/taskm/repository/taskRepo"
@@ -38,7 +39,7 @@ func main() {
 	}
 	httpRouter.POST("/api/auth/register/", authController.UserRegister)
 	httpRouter.GET("/api/auth/sign-in", authController.Login)
-	httpRouter.POST("/api/list/", listController.Create)
+	httpRouter.POST("/api/list", listController.Create, middleware.ValidateToken)
 	httpRouter.GET("/api/list/:user_id", listController.GetAll)
 	httpRouter.POST("/api/task/", taskController.Create)
 	httpRouter.SERVE(os.Getenv("PORT"))
