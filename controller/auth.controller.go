@@ -111,7 +111,7 @@ func (*authController) Login(c *gin.Context) {
 		})
 		return
 	}
-	expirationTime := time.Now().Add(5 * 24 * time.Hour)
+	expirationTime := time.Now().Add(5 * 24 * time.Hour).Unix()
 	t = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"exp":   expirationTime,
 		"user":  user.UserName,
