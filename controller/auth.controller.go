@@ -111,11 +111,23 @@ func (*authController) Login(c *gin.Context) {
 		})
 		return
 	}
+	if userData, ok := mResult.Data.(entity.User); ok {
+		user.ID = userData.ID
+		user.UserName = userData.UserName
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "error getting user information",
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
 	expirationTime := time.Now().Add(5 * 24 * time.Hour).Unix()
 	t = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"exp":   expirationTime,
 		"user":  user.UserName,
 		"email": user.Email,
+		"_id":   user.ID,
 	})
 	s, err := t.SignedString([]byte(key))
 	if err != nil {
