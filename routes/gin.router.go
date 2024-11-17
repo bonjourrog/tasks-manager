@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 
+	"github.com/bonjourrog/taskm/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,6 +14,7 @@ var (
 )
 
 func NewGinRouter() Router {
+	ginDispatch.Use(middleware.CorsMiddleware)
 	return &ginRouter{}
 }
 func (*ginRouter) GET(uri string, f func(*gin.Context), middlewares ...gin.HandlerFunc) {
