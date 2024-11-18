@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -11,7 +10,6 @@ import (
 )
 
 func ValidateToken(c *gin.Context) {
-	fmt.Println("Middleware ejecutado")
 	var (
 		key = []byte(os.Getenv("SECRETE_KEY"))
 	)
@@ -64,5 +62,4 @@ func ValidateToken(c *gin.Context) {
 		return
 	}
 	c.Next()
-	fmt.Println("Middleware despues de controlador")
 }
