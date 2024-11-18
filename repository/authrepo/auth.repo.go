@@ -32,20 +32,14 @@ func (*authRepo) Register(user entity.User) entity.MongoResult {
 		client.Disconnect(context.TODO())
 	}()
 	coll := client.Database(os.Getenv("MONGO_DB")).Collection("users")
-	if err := coll.FindOne(context.TODO(), bson.M{"email": user.Email}).Decode(&singleResult); err != nil {
-		mResult = entity.MongoResult{
-			Success: false,
-			Message: err.Error(),
+	if err := coll.FindOne(context.TODO(), bson.M{"email": user.Email}).Decode(&singleResult); err == nil {
+		if singleResult.Email == user.Email {
+			mResult = entity.MongoResult{
+				Success: false,
+				Message: "email is already registered",
+			}
+			return mResult
 		}
-		return mResult
-	}
-
-	if singleResult.Email == user.Email {
-		mResult = entity.MongoResult{
-			Success: false,
-			Message: "email is already registered",
-		}
-		return mResult
 	}
 
 	result, err := coll.InsertOne(context.TODO(), user)
