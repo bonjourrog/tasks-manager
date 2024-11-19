@@ -24,6 +24,7 @@ func NewListRepository() ListRepo {
 func (*list) Create(list entity.List) entity.MongoResult {
 	var (
 		response entity.MongoResult
+		lists    []entity.List
 		_db      = db.NewMongoConnection()
 	)
 
@@ -32,6 +33,29 @@ func (*list) Create(list entity.List) entity.MongoResult {
 		client.Disconnect(context.TODO())
 	}()
 	coll := client.Database(os.Getenv("MONGO_DB")).Collection("list")
+	cursor, err := coll.Find(context.TODO(), bson.M{"user_id": list.UserID})
+	if err != nil {
+		response = entity.MongoResult{
+			Success: false,
+			Message: err.Error(),
+		}
+		return response
+	}
+	if err = cursor.All(context.TODO(), &lists); err != nil {
+		response = entity.MongoResult{
+			Success: false,
+			Message: err.Error(),
+		}
+		return response
+	}
+	if len(lists) == 5 {
+		response = entity.MongoResult{
+			Success: false,
+			Message: "have reached the limit for creating new lists",
+			Data:    lists,
+		}
+		return response
+	}
 	result, err := coll.InsertOne(context.TODO(), list)
 	if err != nil {
 		response = entity.MongoResult{
