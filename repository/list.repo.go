@@ -8,12 +8,14 @@ import (
 	"github.com/bonjourrog/taskm/db"
 	"github.com/bonjourrog/taskm/entity"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type ListRepo interface {
 	Create(list entity.List) entity.MongoResult
 	FetchAll(user_id string) ([]entity.List, error)
+	Delete(list_id primitive.ObjectID) entity.MongoResult
 }
 
 type list struct{}
@@ -101,4 +103,30 @@ func (*list) FetchAll(user_id string) ([]entity.List, error) {
 		return nil, err
 	}
 	return _list, nil
+}
+func (*list) Delete(list_id primitive.ObjectID) entity.MongoResult {
+	var (
+		_db      = db.NewMongoConnection()
+		response entity.MongoResult
+	)
+	client := _db.Connection()
+	defer func() {
+		client.Disconnect(context.TODO())
+	}()
+	coll := client.Database(os.Getenv("MONGO_DB")).Collection("list")
+	deleteResult, err := coll.DeleteOne(context.TODO(), bson.M{"_id": list_id})
+	if err != nil {
+		response = entity.MongoResult{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+		}
+		return response
+	}
+	response = entity.MongoResult{
+		Success: true,
+		Message: "list deleted successfully",
+		Data:    deleteResult.DeletedCount,
+	}
+	return response
 }
