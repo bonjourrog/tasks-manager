@@ -40,6 +40,7 @@ func main() {
 	httpRouter.POST("/api/auth/register/", authController.UserRegister)
 	httpRouter.POST("/api/auth/sign-in", authController.Login)
 	httpRouter.POST("/api/list", listController.Create, middleware.ValidateToken)
+	httpRouter.DELETE("/api/list/:list_id", listController.DeleteList, middleware.ValidateToken)
 	httpRouter.GET("/api/list/:user_id", listController.GetAll, middleware.ValidateToken)
 	httpRouter.POST("/api/task/", taskController.Create, middleware.ValidateToken)
 	httpRouter.SERVE(os.Getenv("PORT"))
