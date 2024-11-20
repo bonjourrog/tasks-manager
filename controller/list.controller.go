@@ -14,6 +14,7 @@ import (
 type ListController interface {
 	Create(c *gin.Context)
 	GetAll(c *gin.Context)
+	DeleteList(c *gin.Context)
 }
 
 type listController struct{}
@@ -83,6 +84,46 @@ func (*listController) GetAll(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "successfully fetched all items",
 		"data":    _list,
+		"error":   false,
+	})
+}
+func (*listController) DeleteList(c *gin.Context) {
+	var (
+		list_id  string
+		response entity.MongoResult
+	)
+	list_id = c.Param("list_id")
+	if list_id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "list id not provided",
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	listId, err := primitive.ObjectIDFromHex(list_id)
+	if err != nil {
+		if !response.Success {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+				"data":    nil,
+				"error":   true,
+			})
+			return
+		}
+	}
+	response = _liserService.Delete(listId)
+	if !response.Success || response.Data == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": response.Message,
+			"data":    response.Data,
+			"error":   true,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": response.Message,
+		"data":    response.Data,
 		"error":   false,
 	})
 }
