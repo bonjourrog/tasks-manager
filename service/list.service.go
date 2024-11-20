@@ -3,11 +3,13 @@ package service
 import (
 	"github.com/bonjourrog/taskm/entity"
 	"github.com/bonjourrog/taskm/repository"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ListService interface {
 	Create(list entity.List) entity.MongoResult
 	FetchAll(user_id string) ([]entity.List, error)
+	Delete(list_id primitive.ObjectID) entity.MongoResult
 }
 
 type listService struct{}
@@ -25,4 +27,7 @@ func (*listService) Create(list entity.List) entity.MongoResult {
 }
 func (*listService) FetchAll(user_id string) ([]entity.List, error) {
 	return _listRepo.FetchAll(user_id)
+}
+func (*listService) Delete(list_id primitive.ObjectID) entity.MongoResult {
+	return _listRepo.Delete(list_id)
 }
