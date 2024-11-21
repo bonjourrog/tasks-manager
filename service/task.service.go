@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/bonjourrog/taskm/entity"
-	taskrepo "github.com/bonjourrog/taskm/repository/taskRepo"
+	"github.com/bonjourrog/taskm/repository/taskrepo"
 )
 
 type TaskService interface {
