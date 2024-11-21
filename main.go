@@ -7,7 +7,7 @@ import (
 	"github.com/bonjourrog/taskm/middleware"
 	"github.com/bonjourrog/taskm/repository"
 	"github.com/bonjourrog/taskm/repository/authrepo"
-	taskrepo "github.com/bonjourrog/taskm/repository/taskRepo"
+	"github.com/bonjourrog/taskm/repository/taskrepo"
 	"github.com/bonjourrog/taskm/routes"
 	"github.com/bonjourrog/taskm/service"
 	"github.com/joho/godotenv"
