@@ -10,6 +10,7 @@ type ListService interface {
 	Create(list entity.List) entity.MongoResult
 	FetchAll(user_id string) ([]entity.List, error)
 	Delete(list_id primitive.ObjectID) entity.MongoResult
+	Update(list_id primitive.ObjectID, list entity.List) entity.MongoResult
 }
 
 type listService struct{}
@@ -30,4 +31,7 @@ func (*listService) FetchAll(user_id string) ([]entity.List, error) {
 }
 func (*listService) Delete(list_id primitive.ObjectID) entity.MongoResult {
 	return _listRepo.Delete(list_id)
+}
+func (*listService) Update(list_id primitive.ObjectID, list entity.List) entity.MongoResult {
+	return _listRepo.Update(list_id, list)
 }

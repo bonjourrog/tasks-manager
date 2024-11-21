@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/bonjourrog/taskm/db"
 	"github.com/bonjourrog/taskm/entity"
@@ -16,6 +17,7 @@ type ListRepo interface {
 	Create(list entity.List) entity.MongoResult
 	FetchAll(user_id string) ([]entity.List, error)
 	Delete(list_id primitive.ObjectID) entity.MongoResult
+	Update(list_id primitive.ObjectID, list entity.List) entity.MongoResult
 }
 
 type list struct{}
@@ -129,4 +131,34 @@ func (*list) Delete(list_id primitive.ObjectID) entity.MongoResult {
 		Data:    deleteResult.DeletedCount,
 	}
 	return response
+}
+func (*list) Update(list_id primitive.ObjectID, list entity.List) entity.MongoResult {
+	var (
+		_db     = db.NewMongoConnection()
+		respose entity.MongoResult
+	)
+	client := _db.Connection()
+	defer func() {
+		client.Disconnect(context.TODO())
+	}()
+	coll := client.Database(os.Getenv("MONGO_DB")).Collection("list")
+	result, err := coll.UpdateOne(context.TODO(), bson.M{"_id": list_id}, bson.M{"$set": bson.M{
+		"name":       list.Name,
+		"color":      list.Color,
+		"updated_at": time.Now(),
+	}})
+	if err != nil {
+		respose = entity.MongoResult{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+		}
+		return respose
+	}
+	respose = entity.MongoResult{
+		Success: true,
+		Message: "list updated successfully",
+		Data:    result.UpsertedID,
+	}
+	return respose
 }

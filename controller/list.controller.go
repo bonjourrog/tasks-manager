@@ -15,6 +15,7 @@ type ListController interface {
 	Create(c *gin.Context)
 	GetAll(c *gin.Context)
 	DeleteList(c *gin.Context)
+	UpdateList(c *gin.Context)
 }
 
 type listController struct{}
@@ -114,6 +115,52 @@ func (*listController) DeleteList(c *gin.Context) {
 	}
 	response = _liserService.Delete(listId)
 	if !response.Success || response.Data == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": response.Message,
+			"data":    response.Data,
+			"error":   true,
+		})
+		return
+	}
+	c.JSON(http.StatusBadRequest, gin.H{
+		"message": response.Message,
+		"data":    response.Data,
+		"error":   false,
+	})
+}
+func (*listController) UpdateList(c *gin.Context) {
+	var (
+		list     entity.List
+		response entity.MongoResult
+	)
+	list_id := c.Param("list_id")
+	if list_id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "list id not provided",
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	listID, err := primitive.ObjectIDFromHex(list_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	if err := json.NewDecoder(c.Request.Body).Decode(&list); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	response = _liserService.Update(listID, list)
+	if !response.Success {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": response.Message,
 			"data":    response.Data,
