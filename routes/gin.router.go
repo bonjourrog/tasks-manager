@@ -30,7 +30,7 @@ func (*ginRouter) DELETE(uri string, f func(*gin.Context), middlewares ...gin.Ha
 	ginDispatch.DELETE(uri, append(middlewares, f)...)
 }
 func (*ginRouter) SERVE(port string) {
-	if err := http.ListenAndServe(port, ginDispatch); err != nil {
+	if err := http.ListenAndServe((":" + port), ginDispatch); err != nil {
 		panic(err)
 	}
 }
