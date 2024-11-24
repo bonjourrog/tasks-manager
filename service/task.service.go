@@ -8,6 +8,7 @@ import (
 
 type TaskService interface {
 	Create(task entity.Task) entity.MongoResult
+	GetAll(list_id primitive.ObjectID) entity.MongoResult
 	Update(task_id primitive.ObjectID, task entity.Task) entity.MongoResult
 }
 
@@ -24,6 +25,9 @@ func NewTaskService(taskRepo taskrepo.Task) TaskService {
 
 func (*taskSerive) Create(task entity.Task) entity.MongoResult {
 	return _taskRepo.Create(task)
+}
+func (*taskSerive) GetAll(list_id primitive.ObjectID) entity.MongoResult {
+	return _taskRepo.GetAll(list_id)
 }
 func (*taskSerive) Update(task_id primitive.ObjectID, task entity.Task) entity.MongoResult {
 	return _taskRepo.UpdateTask(task_id, task)

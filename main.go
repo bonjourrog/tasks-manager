@@ -45,6 +45,7 @@ func main() {
 	httpRouter.GET("/api/list/:user_id", listController.GetAll, middleware.ValidateToken)
 	httpRouter.POST("/api/task/", taskController.Create, middleware.ValidateToken)
 	httpRouter.PUT("/api/task/:task_id", taskController.Update, middleware.ValidateToken)
+	httpRouter.GET("/api/task/:list_id", taskController.Get, middleware.ValidateToken)
 	httpRouter.SERVE(os.Getenv("PORT"))
 
 }

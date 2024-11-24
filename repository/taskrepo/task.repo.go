@@ -14,6 +14,7 @@ import (
 
 type Task interface {
 	Create(task entity.Task) entity.MongoResult
+	GetAll(list_id primitive.ObjectID) entity.MongoResult
 	UpdateTask(task_id primitive.ObjectID, task entity.Task) entity.MongoResult
 }
 
@@ -46,6 +47,42 @@ func (*taskRepo) Create(task entity.Task) entity.MongoResult {
 		InsertedID: fmt.Sprintf("%v", result.InsertedID),
 	}
 	return mResult
+}
+func (*taskRepo) GetAll(list_id primitive.ObjectID) entity.MongoResult {
+	var (
+		_db     = db.NewMongoConnection()
+		mResult entity.MongoResult
+		tasks   []entity.Task
+	)
+	client := _db.Connection()
+	defer func() {
+		client.Disconnect(context.TODO())
+	}()
+	coll := client.Database(os.Getenv(("MONGO_DB"))).Collection("tasks")
+	findResult, err := coll.Find(context.TODO(), bson.M{"list_id": list_id})
+	if err != nil {
+		mResult = entity.MongoResult{
+			Success: false,
+			Data:    nil,
+			Message: err.Error(),
+		}
+		return mResult
+	}
+	if err = findResult.All(context.TODO(), &tasks); err != nil {
+		mResult = entity.MongoResult{
+			Success: false,
+			Message: err.Error(),
+			Data:    tasks,
+		}
+		return mResult
+	}
+	mResult = entity.MongoResult{
+		Success: true,
+		Message: "Fetching tasks was successful",
+		Data:    tasks,
+	}
+	return mResult
+
 }
 func (*taskRepo) UpdateTask(task_id primitive.ObjectID, task entity.Task) entity.MongoResult {
 	var (

@@ -13,6 +13,7 @@ import (
 
 type TaskController interface {
 	Create(c *gin.Context)
+	Get(c *gin.Context)
 	Update(c *gin.Context)
 }
 
@@ -74,6 +75,44 @@ func (*taskController) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": result.Message,
 		"data":    result.InsertedID,
+		"error":   false,
+	})
+}
+func (*taskController) Get(c *gin.Context) {
+	var (
+		list_id string
+		result  entity.MongoResult
+	)
+	list_id = c.Param("list_id")
+	if list_id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "list id not provided",
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	listID, err := primitive.ObjectIDFromHex(list_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	result = _taskService.GetAll(listID)
+	if !result.Success {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": result.Message,
+			"data":    result.Data,
+			"error":   true,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": result.Message,
+		"data":    result.Data,
 		"error":   false,
 	})
 }
