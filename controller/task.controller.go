@@ -13,6 +13,7 @@ import (
 
 type TaskController interface {
 	Create(c *gin.Context)
+	Update(c *gin.Context)
 }
 
 type taskController struct{}
@@ -73,6 +74,53 @@ func (*taskController) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": result.Message,
 		"data":    result.InsertedID,
+		"error":   false,
+	})
+}
+func (*taskController) Update(c *gin.Context) {
+	var (
+		task_id  string
+		task     entity.Task
+		response entity.MongoResult
+	)
+	task_id = c.Param("task_id")
+	if task_id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "task id not provided",
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	taskID, err := primitive.ObjectIDFromHex(task_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	if err = json.NewDecoder(c.Request.Body).Decode(&task); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	response = _taskService.Update(taskID, task)
+	if !response.Success {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": response.Message,
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": response.Message,
+		"data":    response.Data,
 		"error":   false,
 	})
 }
