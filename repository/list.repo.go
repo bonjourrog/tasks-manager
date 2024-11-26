@@ -115,6 +115,16 @@ func (*list) Delete(list_id primitive.ObjectID) entity.MongoResult {
 	defer func() {
 		client.Disconnect(context.TODO())
 	}()
+	taskColl := client.Database(os.Getenv("MONGO_DB")).Collection("tasks")
+	_, err := taskColl.DeleteMany(context.TODO(), bson.M{"list_id": list_id})
+	if err != nil {
+		response = entity.MongoResult{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+		}
+		return response
+	}
 	coll := client.Database(os.Getenv("MONGO_DB")).Collection("list")
 	deleteResult, err := coll.DeleteOne(context.TODO(), bson.M{"_id": list_id})
 	if err != nil {
