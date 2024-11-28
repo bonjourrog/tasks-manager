@@ -12,7 +12,7 @@ type TaskService interface {
 	Update(task_id primitive.ObjectID, task entity.Task) entity.MongoResult
 }
 
-type taskSerive struct{}
+type taskService struct{}
 
 var (
 	_taskRepo taskrepo.Task
@@ -20,15 +20,15 @@ var (
 
 func NewTaskService(taskRepo taskrepo.Task) TaskService {
 	_taskRepo = taskRepo
-	return &taskSerive{}
+	return &taskService{}
 }
 
-func (*taskSerive) Create(task entity.Task) entity.MongoResult {
+func (*taskService) Create(task entity.Task) entity.MongoResult {
 	return _taskRepo.Create(task)
 }
-func (*taskSerive) GetAll(list_id primitive.ObjectID) entity.MongoResult {
+func (*taskService) GetAll(list_id primitive.ObjectID) entity.MongoResult {
 	return _taskRepo.GetAll(list_id)
 }
-func (*taskSerive) Update(task_id primitive.ObjectID, task entity.Task) entity.MongoResult {
+func (*taskService) Update(task_id primitive.ObjectID, task entity.Task) entity.MongoResult {
 	return _taskRepo.UpdateTask(task_id, task)
 }
