@@ -10,12 +10,14 @@ import (
 	"github.com/bonjourrog/taskm/entity"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Task interface {
 	Create(task entity.Task) entity.MongoResult
 	GetAll(list_id primitive.ObjectID) entity.MongoResult
 	UpdateTask(task_id primitive.ObjectID, task entity.Task) entity.MongoResult
+	DeleteTask(task_id primitive.ObjectID) entity.MongoResult
 }
 
 type taskRepo struct{}
@@ -112,4 +114,57 @@ func (*taskRepo) UpdateTask(task_id primitive.ObjectID, task entity.Task) entity
 	}
 	return mResult
 
+}
+func (*taskRepo) DeleteTask(task_id primitive.ObjectID) entity.MongoResult {
+	var (
+		_db    = db.NewMongoConnection()
+		result entity.Task
+	)
+
+	client := _db.Connection()
+	defer func() {
+		client.Disconnect(context.TODO())
+	}()
+
+	coll := client.Database(os.Getenv("MONGO_DB")).Collection("tasks")
+
+	err := coll.FindOne(context.TODO(), bson.M{"_id": task_id}).Decode(&result)
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return entity.MongoResult{
+				Success: false,
+				Message: "task not found",
+				Data:    nil,
+			}
+		}
+		return entity.MongoResult{
+			Success: false,
+			Message: fmt.Sprintf("Error fetching task: %s", err.Error()),
+			Data:    nil,
+		}
+	}
+
+	deleteResult, err := coll.DeleteOne(context.TODO(), bson.M{"_id": task_id})
+
+	if err != nil {
+		return entity.MongoResult{
+			Success: false,
+			Message: "error deleting task " + err.Error(),
+			Data:    nil,
+		}
+	}
+	if deleteResult.DeletedCount == 0 {
+		return entity.MongoResult{
+			Success: false,
+			Message: "task not found for deleting",
+			Data:    nil,
+		}
+	}
+
+	return entity.MongoResult{
+		Success: true,
+		Message: "task deleted succefully",
+		Data:    deleteResult.DeletedCount,
+	}
 }

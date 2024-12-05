@@ -10,6 +10,7 @@ type TaskService interface {
 	Create(task entity.Task) entity.MongoResult
 	GetAll(list_id primitive.ObjectID) entity.MongoResult
 	Update(task_id primitive.ObjectID, task entity.Task) entity.MongoResult
+	DeleteTask(task_id primitive.ObjectID) entity.MongoResult
 }
 
 type taskService struct{}
@@ -31,4 +32,7 @@ func (*taskService) GetAll(list_id primitive.ObjectID) entity.MongoResult {
 }
 func (*taskService) Update(task_id primitive.ObjectID, task entity.Task) entity.MongoResult {
 	return _taskRepo.UpdateTask(task_id, task)
+}
+func (*taskService) DeleteTask(task_id primitive.ObjectID) entity.MongoResult {
+	return _taskRepo.DeleteTask(task_id)
 }

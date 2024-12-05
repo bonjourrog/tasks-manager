@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -15,6 +16,7 @@ type TaskController interface {
 	Create(c *gin.Context)
 	Get(c *gin.Context)
 	Update(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 type taskController struct{}
@@ -161,5 +163,39 @@ func (*taskController) Update(c *gin.Context) {
 		"message": response.Message,
 		"data":    response.Data,
 		"error":   false,
+	})
+}
+func (*taskController) Delete(c *gin.Context) {
+	task_id := c.Param("task_id")
+	if task_id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "task id not provided",
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	taskID, err := primitive.ObjectIDFromHex(task_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("Invalid task ID format: %v", err.Error()),
+			"data":    nil,
+			"error":   true,
+		})
+		return
+	}
+	results := _taskService.DeleteTask(taskID)
+	if !results.Success {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": results.Message,
+			"data":    results.Data,
+			"error":   results.Success,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": results.Message,
+		"data":    results.Data,
+		"error":   results.Success,
 	})
 }
