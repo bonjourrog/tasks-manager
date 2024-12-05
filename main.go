@@ -46,6 +46,7 @@ func main() {
 	httpRouter.POST("/api/task/", taskController.Create, middleware.ValidateToken)
 	httpRouter.PUT("/api/task/:task_id", taskController.Update, middleware.ValidateToken)
 	httpRouter.GET("/api/task/:list_id", taskController.Get, middleware.ValidateToken)
+	httpRouter.DELETE("/api/task/:task_id", taskController.Delete, middleware.ValidateToken)
 	httpRouter.SERVE(os.Getenv("PORT"))
 
 }
