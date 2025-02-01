@@ -196,6 +196,6 @@ func (*taskController) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": results.Message,
 		"data":    results.Data,
-		"error":   results.Success,
+		"error":   !results.Success,
 	})
 }
